@@ -1,7 +1,5 @@
 import os
 
-from pydantic import BaseModel
-
 from app.database.database import DBClient
 from app.database.schemas import PyObjectId
 from app.utils.app_utils import AppUtils
@@ -10,7 +8,7 @@ DB_NAME = os.environ["DB_NAME"]
 
 
 class DataAccessLayer:
-    def __init__(self, model: BaseModel, collection_name: str):
+    def __init__(self, model, collection_name: str):
         db_instance = DBClient.get_instance()
         self.__db_client = db_instance.client[DB_NAME][collection_name]
         self.__model = model
@@ -34,7 +32,7 @@ class DataAccessLayer:
 
     def add_one(self, obj_in: dict) -> PyObjectId:
         print(f"obj_in: {obj_in}")
-        db_obj = self.__model(**obj_in).dict(exclude_unset=True)
+        db_obj = self.__model(**obj_in).dict()
         result = self.__db_client.insert_one(db_obj)
         result_id = result.inserted_id
         print(f"result_id: {result_id}")
@@ -42,10 +40,9 @@ class DataAccessLayer:
 
     def update_one_set(self, search_by: dict, update_info: dict) -> int:
         print(f"search_by: {search_by}, update_info: {update_info}")
-        db_obj = self.__model(**update_info).dict(exclude_unset=True)
         result = self.__db_client.update_one(
-            search_by=search_by,
-            update_info={"$set": db_obj}
+            filter=search_by,
+            update={"$set": update_info}
         )
         modified_count = result.modified_count
         print(f"modified_count: {modified_count}")

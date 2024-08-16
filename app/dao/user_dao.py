@@ -1,8 +1,11 @@
+from fastapi import HTTPException
+from pymongo.errors import DuplicateKeyError
 
 from app.database.crud import DataAccessLayer
 from app.database.schemas import PyObjectId
 from app.database.schemas.user import UserSchema
 from app.dto.user import AddUserDto
+from app.enums.http_config import HttpStatusCode
 from app.utils.DateUtils import DateUtils
 from app.utils.app_utils import AppUtils
 
@@ -17,7 +20,11 @@ class UserDAO:
             search_by={"is_deleted": False})
 
     def add_user(self, user_model: AddUserDto) -> PyObjectId:
-        return self.__data_access_service.add_one(user_model.dict())
+        try:
+            return self.__data_access_service.add_one(user_model.dict())
+        except DuplicateKeyError:
+            raise HTTPException(status_code=HttpStatusCode.BAD_REQUEST,
+                                detail="Username already exists")
 
     def delete_user_by_id(self, user_id: PyObjectId) -> int:
         return self.__data_access_service.update_one_set(

@@ -1,11 +1,11 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class UserRolesEnum(Enum):
+class UserRolesEnum(StrEnum):
     ADMIN = "ADMIN"
     MEMBER = "MEMBER"
 
 
-class UserActiveStatusEnum(Enum):
+class UserActiveStatusEnum(StrEnum):
     ACTIVE = "ACTIVE"
     DISABLED = "DISABLED"

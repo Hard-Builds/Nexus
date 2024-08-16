@@ -67,7 +67,7 @@ class UserManagementService:
                 detail="User details not found!"
             )
 
-        if user_dtl["ActiveStatus"] != UserActiveStatusEnum.ACTIVE:
+        if user_dtl["ActiveStatus"] != UserActiveStatusEnum.ACTIVE.value:
             raise HTTPException(
                 status_code=HttpStatusCode.BAD_REQUEST,
                 detail="User is not Active!"
