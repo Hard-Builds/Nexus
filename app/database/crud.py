@@ -33,6 +33,7 @@ class DataAccessLayer:
     def add_one(self, obj_in: dict) -> PyObjectId:
         print(f"obj_in: {obj_in}")
         db_obj = self.__model(**obj_in).dict()
+        print(f"db_obj: {db_obj}")
         result = self.__db_client.insert_one(db_obj)
         result_id = result.inserted_id
         print(f"result_id: {result_id}")

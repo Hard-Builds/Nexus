@@ -32,6 +32,8 @@ class UserValidator:
                     status_code=HttpStatusCode.UNAUTHORIZED,
                     detail="Sorry, you can't access this functionality. Please check your group settings or contact support."
                 )
+
+            request.__setattr__("user_id", user_dtl["_id"])
         except ExpiredSignatureError:
             raise HTTPException(
                 status_code=HttpStatusCode.UNAUTHORIZED,

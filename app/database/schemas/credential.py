@@ -8,6 +8,6 @@ class CredentialSchema(PyDanticBaseModel):
     user_id: PyObjectId
     name: str
     description: Optional[str] = ""
-    provider: Optional[CredentialProviderEnum] = CredentialProviderEnum.OPEN_AI
+    provider: Optional[CredentialProviderEnum] = CredentialProviderEnum.OPEN_AI.value
     api_key: str
     metadata: Optional[dict] = {}
