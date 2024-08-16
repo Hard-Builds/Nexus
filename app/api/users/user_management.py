@@ -26,7 +26,7 @@ def list_user_controller() -> dict:
         AppUtils.handle_exception(exc, is_raise=True)
 
 
-@user_op_api_router.put("/add", status_code=HttpStatusCode.OK)
+@user_op_api_router.put("/add")
 def add_user_controller(req_dto: AddUserDto) -> dict:
     try:
         user_id: PyObjectId = user_management_service.add_user(req_dto)
@@ -39,7 +39,7 @@ def add_user_controller(req_dto: AddUserDto) -> dict:
         AppUtils.handle_exception(exc, is_raise=True)
 
 
-@user_op_api_router.delete("/delete", status_code=HttpStatusCode.OK)
+@user_op_api_router.delete("/delete")
 @UserValidator.pre_authorizer(authorized_roles=[UserRolesEnum.ADMIN])
 def delete_user_controller(request: Request, user_id: PyObjectId) -> dict:
     try:
@@ -65,7 +65,7 @@ def disable_user_controller(request: Request, user_id: PyObjectId) -> dict:
         AppUtils.handle_exception(exc, is_raise=True)
 
 
-@user_op_api_router.get("/login", status_code=HttpStatusCode.OK)
+@user_op_api_router.get("/login")
 def user_login_controller(username: str, password: str) -> dict:
     try:
         req_dto = UserLoginDto(

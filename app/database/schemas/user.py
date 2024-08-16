@@ -11,7 +11,7 @@ class UserSchema(PyDanticBaseModel):
     username: str
     password: str
     role: Optional[UserRolesEnum] = UserRolesEnum.MEMBER.value
-    ActiveStatus: Optional[
+    active_status: Optional[
         UserActiveStatusEnum] = UserActiveStatusEnum.ACTIVE.value
 
     @validator("password", pre=True, always=True)
