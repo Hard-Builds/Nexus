@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Request
 
+from app.database.schemas import PyObjectId
 from app.dto.user import AddUserDto, UserLoginDto
 from app.enums.http_config import HttpStatusCode
 from app.enums.user import UserRolesEnum
@@ -24,7 +25,7 @@ def list_user_controller() -> dict:
 
 @user_op_api_router.put("/add", status_code=HttpStatusCode.OK)
 def add_user_controller(req_dto: AddUserDto) -> dict:
-    user_id: int = user_management_service.add_user(req_dto)
+    user_id: PyObjectId = user_management_service.add_user(req_dto)
     return AppUtils.response(
         status_code=HttpStatusCode.OK,
         message="User Added Successfully!",
@@ -34,7 +35,7 @@ def add_user_controller(req_dto: AddUserDto) -> dict:
 
 @user_op_api_router.delete("/delete", status_code=HttpStatusCode.OK)
 @UserValidator.pre_authorizer(authorized_roles=[UserRolesEnum.ADMIN])
-def delete_user_controller(request: Request, user_id: int) -> dict:
+def delete_user_controller(request: Request, user_id: PyObjectId) -> dict:
     user_management_service.delete_user(user_id)
     return AppUtils.response(
         status_code=HttpStatusCode.OK,
@@ -44,7 +45,7 @@ def delete_user_controller(request: Request, user_id: int) -> dict:
 
 @user_op_api_router.post("/disable")
 @UserValidator.pre_authorizer(authorized_roles=[UserRolesEnum.ADMIN])
-def disable_user_controller(request: Request, user_id: int) -> dict:
+def disable_user_controller(request: Request, user_id: PyObjectId) -> dict:
     user_management_service.disable_user(user_id)
     return AppUtils.response(
         status_code=HttpStatusCode.OK,

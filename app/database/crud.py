@@ -1,66 +1,58 @@
-from typing import TypeVar, Any
+import os
 
-from fastapi import HTTPException
-from fastapi.encoders import jsonable_encoder
-from sqlalchemy import and_
-from sqlalchemy.exc import SQLAlchemyError
-from starlette.responses import JSONResponse
+from pydantic import BaseModel
 
 from app.database.database import DBClient
-from app.database.models import Base
-from app.enums.http_config import HttpStatusCode
+from app.database.schemas import PyObjectId
+from app.utils.app_utils import AppUtils
 
-ModelType = TypeVar("ModelType", bound=Base)
+DB_NAME = os.environ["DB_NAME"]
 
 
 class DataAccessLayer:
-    def __init__(self, model: ModelType):
+    def __init__(self, model: BaseModel, collection_name: str):
         db_instance = DBClient.get_instance()
-        self.__db_client = db_instance.client
-        self.model = model
+        self.__db_client = db_instance.client[DB_NAME][collection_name]
+        self.__model = model
 
-    def __update_data(self, item) -> Any:
-        json_compatible_item_data = jsonable_encoder(item)
-        return JSONResponse(content=json_compatible_item_data)
+    def get_by_id(self, primary_key: PyObjectId,
+                  project_by: dict = None) -> dict:
+        print(f"primary_key: {primary_key}, project_by: {project_by}")
+        search_by = {
+            "_id": AppUtils.bson_objectId_converter(primary_key),
+            "is_deleted": False
+        }
+        result: dict = self.__db_client.find_one(search_by, project_by)
+        print(f"result: {result}")
+        return result
 
-    def get_by_id(self, id):
-        row_obj = self.__db_client.query(self.model).filter(
-            self.model.id == id, self.model.is_deleted == False
-        ).first()
-        print(f"row_obj : {row_obj}")
-        return row_obj
+    def get_all(self, search_by: dict, project_by: dict = None) -> list:
+        print(f"search_by: {search_by}, project_by: {project_by}")
+        result: list = list(self.__db_client.find(search_by, project_by))
+        print(f"result: {result}")
+        return result
 
-    def get_all(self):
-        row_list: list = list(self.__db_client.query(self.model).all())
-        row_list: list = self.__update_data(row_list)
-        print(f"row_list : {row_list}")
-        return row_list
+    def add_one(self, obj_in: dict) -> PyObjectId:
+        print(f"obj_in: {obj_in}")
+        db_obj = self.__model(**obj_in).dict(exclude_unset=True)
+        result = self.__db_client.insert_one(db_obj)
+        result_id = result.inserted_id
+        print(f"result_id: {result_id}")
+        return result_id
 
-    def add_row(self, obj_in):
-        db = self.__db_client
-        try:
-            print(f"obj_in : {obj_in}")
-            db_obj = self.model(**obj_in.dict())
-            db.add(db_obj)
-            db.commit()
-            db.refresh(db_obj)
-            print(f"db_obj : {db_obj}")
-            return db_obj
-        except SQLAlchemyError as e:
-            db.rollback()
-            raise HTTPException(status_code=HttpStatusCode.NOT_FOUND,
-                                detail="Failed to create item")
+    def update_one_set(self, search_by: dict, update_info: dict) -> int:
+        print(f"search_by: {search_by}, update_info: {update_info}")
+        db_obj = self.__model(**update_info).dict(exclude_unset=True)
+        result = self.__db_client.update_one(
+            search_by=search_by,
+            update_info={"$set": db_obj}
+        )
+        modified_count = result.modified_count
+        print(f"modified_count: {modified_count}")
+        return modified_count
 
-    def update_row(self, model_obj):
-        db = self.__db_client
-        db.add(model_obj)
-        db.commit()
-        db.refresh(model_obj)
-        model_obj = self.__update_data(model_obj)
-        print(f"model_obj : {model_obj}")
-        return model_obj
-
-    def get_first_row_by_filter(self, filters):
-        row_obj = self.__db_client.query(self.model).filter(and_(*filters)).first()
-        print(f"row_obj : {row_obj}")
-        return row_obj
+    def get_first_row_by_filter(self, search_by: dict,
+                                project_by: dict = None) -> dict:
+        result: dict = self.__db_client.find_one(search_by, project_by)
+        print(f"result: {result}")
+        return result

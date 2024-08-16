@@ -1,11 +1,12 @@
 from fastapi import HTTPException
 
 from app.dao.user_dao import UserDAO
-from app.database.models.user import User
+from app.database.schemas import PyObjectId
 from app.dto.user import AddUserDto, UserLoginDto
 from app.enums.http_config import HttpStatusCode
 from app.enums.user import UserActiveStatusEnum
 from app.service.auth.token_service import AuthTokenServices
+from app.utils.DateUtils import DateUtils
 from app.utils.password_utils import PasswordUtils
 
 
@@ -17,44 +18,48 @@ class UserManagementService:
         user_list: list = self.__user_dao.get_all_users()
         return user_list
 
-    def add_user(self, req_dto: AddUserDto) -> int:
-        user_obj = self.__user_dao.add_user(req_dto)
-        user_id = user_obj.id
+    def add_user(self, req_dto: AddUserDto) -> PyObjectId:
+        user_id: PyObjectId = self.__user_dao.add_user(user_model=req_dto)
         return user_id
 
-    def delete_user(self, user_id: int) -> None:
-        user = self.__user_dao.get_user_dtl_by_id(user_id)
-        if not user:
+    def delete_user(self, user_id: PyObjectId) -> None:
+        user_dtl: dict = self.__user_dao.get_user_dtl_by_id(user_id)
+        if not user_dtl:
             raise HTTPException(
                 status_code=HttpStatusCode.NOT_FOUND,
                 detail="User Details not found!"
             )
 
-        self.__user_dao.delete_user_by_id(user)
+        self.__user_dao.delete_user_by_id(user_id)
 
-    def disable_user(self, user_id: int) -> None:
-        user = self.__user_dao.get_user_dtl_by_id(user_id)
-        if not user:
+    def disable_user(self, user_id: PyObjectId) -> None:
+        user_dtl: dict = self.__user_dao.get_user_dtl_by_id(user_id)
+        if not user_dtl:
             raise HTTPException(
                 status_code=HttpStatusCode.NOT_FOUND,
                 detail="User Details not found!"
             )
 
-        if user.ActiveStatus == UserActiveStatusEnum.DISABLED:
+        if user_dtl.get("ActiveStatus") == UserActiveStatusEnum.DISABLED:
             raise HTTPException(
                 status_code=HttpStatusCode.BAD_REQUEST,
                 detail="User is already DISABLED!"
             )
 
-        user.ActiveStatus = UserActiveStatusEnum.DISABLED.value
-        self.__user_dao.update_user_dtl(user)
+        self.__user_dao.update_user_dtl(
+            user_id=user_id,
+            update_info={
+                "ActiveStatus": UserActiveStatusEnum.DISABLED.value,
+                "modified_on": DateUtils.get_current_epoch()
+            }
+        )
 
     def user_login(self, req_dto: UserLoginDto) -> str:
         username = req_dto.username
-        user_dtl: User = self.__user_dao.get_user_dtl(filters=[
-            User.username == username,
-            User.is_deleted == False
-        ])
+        user_dtl: dict = self.__user_dao.get_user_dtl(filters={
+            "username": username,
+            "is_deleted": False
+        })
 
         if not user_dtl:
             raise HTTPException(
@@ -62,7 +67,7 @@ class UserManagementService:
                 detail="User details not found!"
             )
 
-        if user_dtl.ActiveStatus != UserActiveStatusEnum.ACTIVE:
+        if user_dtl["ActiveStatus"] != UserActiveStatusEnum.ACTIVE:
             raise HTTPException(
                 status_code=HttpStatusCode.BAD_REQUEST,
                 detail="User is not Active!"
@@ -70,7 +75,7 @@ class UserManagementService:
 
         valid_pwd = PasswordUtils.verify_password(
             plain_password=req_dto.password,
-            hashed_password=user_dtl._hashed_password
+            hashed_password=user_dtl["password"]
         )
 
         if not valid_pwd:

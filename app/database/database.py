@@ -1,9 +1,6 @@
 import os
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-from app.database.models import Base
+from pymongo import MongoClient
 
 DATABASE_URL = os.environ["DATABASE_URL"]
 
@@ -20,11 +17,7 @@ class DBClient:
             self.init_pool()
 
     def init_pool(self):
-        engine = create_engine(DATABASE_URL)
-        SessionLocal = sessionmaker(autocommit=False, autoflush=False,
-                                    bind=engine)
-        self.client = SessionLocal()
-        Base.metadata.create_all(bind=engine)
+        self.client = MongoClient(DATABASE_URL)
 
     @staticmethod
     def get_instance():

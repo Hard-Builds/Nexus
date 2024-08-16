@@ -5,5 +5,5 @@ from app.enums.user import UserRolesEnum, UserActiveStatusEnum
 class UserSchema(PyDanticBaseModel):
     username: str
     password: str
-    role: UserRolesEnum
-    ActiveStatus: UserActiveStatusEnum
+    role: UserRolesEnum = UserRolesEnum.MEMBER
+    ActiveStatus: UserActiveStatusEnum = UserActiveStatusEnum.ACTIVE

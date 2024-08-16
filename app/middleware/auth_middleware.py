@@ -1,11 +1,9 @@
-import time
 from functools import wraps
 
 from fastapi import Request, HTTPException
 from jose import ExpiredSignatureError
 
 from app.dao.user_dao import UserDAO
-from app.database.models.user import User
 from app.enums.http_config import HttpStatusCode
 from app.service.auth.token_service import AuthTokenServices
 
@@ -25,11 +23,11 @@ class UserValidator:
             username = data.get("username")
 
             user_dao = UserDAO()
-            user_dtl: User = user_dao.get_user_dtl(filters=[
-                User.username == username,
-                User.is_deleted == False
-            ])
-            if user_dtl.role not in authorized_roles:
+            user_dtl: dict = user_dao.get_user_dtl(filters={
+                "username": username,
+                "is_deleted": False
+            })
+            if user_dtl["role"] not in authorized_roles:
                 raise HTTPException(
                     status_code=HttpStatusCode.UNAUTHORIZED,
                     detail="Sorry, you can't access this functionality. Please check your group settings or contact support."
