@@ -1,9 +1,11 @@
 import os
+from typing import Optional
 
 from pymongo import IndexModel
 from pymongo.errors import OperationFailure
 
 from app.database.database import DBClient
+from app.database.pipeline_builder import MongoPipelineBuilder
 from app.enums.os_vars import OSVarsEnum
 from app.middleware.context import RequestContext
 from app.utils.DateUtils import DateUtils
@@ -56,15 +58,15 @@ class DataAccessLayer:
             "is_deleted": False
         }
         result: dict = self.__db_client.find_one(search_by, project_by)
-        print(f"result: {result}")
         result: dict = AppUtils.convert_object_id_to_str(result)
+        print(f"result: {result}")
         return result
 
     def get_all(self, search_by: dict, project_by: dict = None) -> list:
         print(f"search_by: {search_by}, project_by: {project_by}")
         result: list = list(self.__db_client.find(search_by, project_by))
-        print(f"result: {result}")
         result: list = AppUtils.convert_object_id_to_str(result)
+        print(f"result: {result}")
         return result
 
     def add_one(self, obj_in: dict) -> PyObjectId:
@@ -93,6 +95,14 @@ class DataAccessLayer:
     def get_first_row_by_filter(self, search_by: dict,
                                 project_by: dict = None) -> dict:
         result: dict = self.__db_client.find_one(search_by, project_by)
-        print(f"result: {result}")
         result: dict = AppUtils.convert_object_id_to_str(result)
+        print(f"result: {result}")
         return result
+
+    def pipeline_aggregation(
+            self, pipeline: list[MongoPipelineBuilder]) -> Optional[list]:
+        print(f"pipeline: {pipeline}")
+        result_list: list = list(self.__db_client.aggregate(pipeline))
+        result_list: list = AppUtils.convert_object_id_to_str(result_list)
+        print(f"result_list: {result_list}")
+        return result_list

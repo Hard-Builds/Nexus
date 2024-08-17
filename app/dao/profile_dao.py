@@ -1,4 +1,7 @@
+from typing import Optional
+
 from app.database.crud import DataAccessLayer
+from app.database.pipeline_builder import MongoPipelineBuilder
 from app.database.schemas.profile import ProfileSchema
 from app.dto.profile_dto import CreateProfileReqDto
 from app.enums.db_collections import DBCollections
@@ -37,3 +40,8 @@ class ProfileDAO:
             update_info=update_info
         )
         return modified_count
+
+    def profile_pipeline_aggregation(
+            self, pipeline: list[MongoPipelineBuilder]) -> Optional[list]:
+        return self.__data_access_service.pipeline_aggregation(
+            pipeline=pipeline)
