@@ -23,3 +23,17 @@ class ProfileDAO:
                 "is_deleted": False
             }
         )
+
+    def delete_profile(self, profile_id: PyObjectId) -> int:
+        return self.__data_access_service.update_one_set(
+            search_by={"_id": AppUtils.bson_objectId_converter(profile_id)},
+            update_info={"is_deleted": True}
+        )
+
+    def update_profile(self, profile_id: PyObjectId,
+                       update_info: dict) -> int:
+        modified_count = self.__data_access_service.update_one_set(
+            search_by={"_id": AppUtils.bson_objectId_converter(profile_id)},
+            update_info=update_info
+        )
+        return modified_count
