@@ -57,12 +57,14 @@ class DataAccessLayer:
         }
         result: dict = self.__db_client.find_one(search_by, project_by)
         print(f"result: {result}")
+        result: dict = AppUtils.convert_object_id_to_str(result)
         return result
 
     def get_all(self, search_by: dict, project_by: dict = None) -> list:
         print(f"search_by: {search_by}, project_by: {project_by}")
         result: list = list(self.__db_client.find(search_by, project_by))
         print(f"result: {result}")
+        result: list = AppUtils.convert_object_id_to_str(result)
         return result
 
     def add_one(self, obj_in: dict) -> PyObjectId:
@@ -92,4 +94,5 @@ class DataAccessLayer:
                                 project_by: dict = None) -> dict:
         result: dict = self.__db_client.find_one(search_by, project_by)
         print(f"result: {result}")
+        result: dict = AppUtils.convert_object_id_to_str(result)
         return result

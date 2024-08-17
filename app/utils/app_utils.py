@@ -49,3 +49,15 @@ class AppUtils:
                 if hasattr(exception, "status_code")
                 else HttpStatusCode.INTERNAL_SERVER_ERROR,
                 detail=message)
+
+    @staticmethod
+    def convert_object_id_to_str(data):
+        if isinstance(data, dict):
+            return {k: AppUtils.convert_object_id_to_str(v) for k, v in
+                    data.items()}
+        elif isinstance(data, list):
+            return [AppUtils.convert_object_id_to_str(item) for item in data]
+        elif isinstance(data, ObjectId):
+            return str(data)
+        else:
+            return data

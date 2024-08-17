@@ -1,6 +1,3 @@
-import json
-
-from bson.json_util import dumps
 from fastapi import APIRouter, Request
 
 from app.dto.user_dto import AddUserDto, UserLoginDto
@@ -23,7 +20,7 @@ def list_user_controller() -> dict:
         return AppUtils.response(
             status_code=HttpStatusCode.OK,
             message="User Details Found Successfully!",
-            data=json.loads(dumps(user_list))
+            data=user_list
         )
     except Exception as exc:
         AppUtils.handle_exception(exc, is_raise=True)
