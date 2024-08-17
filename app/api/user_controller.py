@@ -1,12 +1,15 @@
+import json
+
+from bson.json_util import dumps
 from fastapi import APIRouter, Request
 
-from app.utils.pyobjectid import PyObjectId
 from app.dto.user_dto import AddUserDto, UserLoginDto
 from app.enums.http_config import HttpStatusCode
 from app.enums.user_enum import UserRolesEnum
 from app.middleware.auth_middleware import UserValidator
 from app.service.user_service import UserManagementService
 from app.utils.app_utils import AppUtils
+from app.utils.pyobjectid import PyObjectId
 
 users_api_router = APIRouter(prefix="/users", tags=["User management"])
 
@@ -20,7 +23,7 @@ def list_user_controller() -> dict:
         return AppUtils.response(
             status_code=HttpStatusCode.OK,
             message="User Details Found Successfully!",
-            data=user_list
+            data=json.loads(dumps(user_list))
         )
     except Exception as exc:
         AppUtils.handle_exception(exc, is_raise=True)

@@ -14,9 +14,9 @@ class CreateProfileReqDto(BaseModel):
 
 class UpdateProfileReqDto(BaseModel):
     profile_id: PyObjectId
-    name: Optional[str]
-    description: Optional[str] = ""
-    config: Optional[dict]
+    name: Optional[str] = None
+    description: Optional[str] = None
+    config: Optional[dict] = None
 
 
 class UpdateStatusProfileReqDto(BaseModel):

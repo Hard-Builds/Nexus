@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Request
 
 from app.dto.profile_dto import CreateProfileReqDto, UpdateProfileReqDto, \
@@ -8,6 +10,7 @@ from app.middleware.auth_middleware import UserValidator
 from app.service.profile_service import ProfileService
 from app.utils.app_utils import AppUtils
 from app.utils.pyobjectid import PyObjectId
+from bson.json_util import dumps
 
 profile_api_router = APIRouter(prefix="/profile",
                                tags=["Profile management"])
@@ -31,7 +34,7 @@ def create_profile_controller(request: Request,
         AppUtils.handle_exception(exc, is_raise=True)
 
 
-@profile_api_router.get("/")
+@profile_api_router.get("")
 @UserValidator.pre_authorizer(
     authorized_roles=[UserRolesEnum.ADMIN, UserRolesEnum.MEMBER])
 def get_profile_controller(request: Request,
@@ -44,6 +47,7 @@ def get_profile_controller(request: Request,
             message="Profile Added Successfully!",
             data=profile_dtl
         )
+        response = json.loads(dumps(response))
         return response
     except Exception as exc:
         AppUtils.handle_exception(exc, is_raise=True)

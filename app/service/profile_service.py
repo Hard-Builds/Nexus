@@ -24,7 +24,7 @@ class ProfileService:
             )
 
         if profile_dtl.get(
-                "created_on") != RequestContext.get_context_user_id():
+                "created_by") != RequestContext.get_context_user_id():
             raise HTTPException(
                 status_code=HttpStatusCode.BAD_REQUEST,
                 detail="You cannot access this profile!"
@@ -57,8 +57,8 @@ class ProfileService:
             profile_id = req_dto.profile_id
             _ = self.get_profile_func(profile_id)
 
-            update_info: dict = ProfileSchema(**req_dto.dict()).dict(
-                exclude_unset=True)
+            update_info: dict = ProfileSchema(
+                **req_dto.dict(exclude_none=True)).dict(exclude_unset=True)
             _ = self.__profile_dao.update_profile(profile_id, update_info)
         except Exception as exc:
             AppUtils.handle_exception(exc, is_raise=True)
@@ -73,7 +73,7 @@ class ProfileService:
             if profile_dtl.get("active_status") == req_dto.active_status:
                 raise HTTPException(
                     status_code=HttpStatusCode.BAD_REQUEST,
-                    detail=f"Profile is already {req_dto.active_status}."
+                    detail=f"Profile is already {req_dto.active_status.value}."
                 )
 
             update_info: dict = ProfileSchema(**req_dto.dict()).dict(
@@ -84,7 +84,8 @@ class ProfileService:
 
     def delete_profile_func(self, profile_id: PyObjectId) -> None:
         try:
-            _ = self.get_profile_func(profile_id)
+            profile_dtl: dict = self.__profile_dao.get_profile(profile_id)
+            self.__profile_validations(profile_dtl, check_status=False)
             self.__profile_dao.delete_profile(profile_id)
         except Exception as exc:
             AppUtils.handle_exception(exc, is_raise=True)
