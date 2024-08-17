@@ -52,7 +52,7 @@ def delete_user_controller(request: Request, user_id: PyObjectId) -> dict:
         AppUtils.handle_exception(exc, is_raise=True)
 
 
-@users_api_router.post("/disable")
+@users_api_router.put("/disable")
 @UserValidator.pre_authorizer(authorized_roles=[UserRolesEnum.ADMIN])
 def disable_user_controller(request: Request, user_id: PyObjectId) -> dict:
     try:

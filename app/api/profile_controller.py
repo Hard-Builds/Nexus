@@ -49,7 +49,7 @@ def get_profile_controller(request: Request,
         AppUtils.handle_exception(exc, is_raise=True)
 
 
-@profile_api_router.post("/update")
+@profile_api_router.put("/update")
 @UserValidator.pre_authorizer(
     authorized_roles=[UserRolesEnum.ADMIN, UserRolesEnum.MEMBER])
 def update_profile_controller(request: Request,
@@ -65,7 +65,7 @@ def update_profile_controller(request: Request,
         AppUtils.handle_exception(exc, is_raise=True)
 
 
-@profile_api_router.post("/status/update")
+@profile_api_router.put("/status/update")
 @UserValidator.pre_authorizer(
     authorized_roles=[UserRolesEnum.ADMIN, UserRolesEnum.MEMBER])
 def status_update_profile_controller(request: Request,
