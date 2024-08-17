@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import validator
+from pydantic import validator, EmailStr
 
 from app.database.schemas import PyDanticBaseModel
 from app.enums.user import UserRolesEnum, UserActiveStatusEnum
@@ -8,7 +8,8 @@ from app.utils.password_utils import PasswordUtils
 
 
 class UserSchema(PyDanticBaseModel):
-    username: str
+    name: str
+    username: EmailStr
     password: str
     role: Optional[UserRolesEnum] = UserRolesEnum.MEMBER.value
     active_status: Optional[
