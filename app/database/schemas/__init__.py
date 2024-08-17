@@ -17,5 +17,5 @@ class PyDanticBaseModel(BaseModel):
         default_factory=RequestContext.get_context_user_id)
 
     class Config:
-        orm_mode = True
+        from_attributes = True
         use_enum_values = True

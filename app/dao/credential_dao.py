@@ -4,6 +4,7 @@ from pymongo.errors import DuplicateKeyError
 from app.database.crud import DataAccessLayer
 from app.database.schemas.credential import CredentialSchema
 from app.dto.credential import CreateCredentialDto
+from app.enums.db_collections import DBCollections
 from app.enums.http_config import HttpStatusCode
 from app.utils.app_utils import AppUtils
 from app.utils.pyobjectid import PyObjectId
@@ -12,7 +13,9 @@ from app.utils.pyobjectid import PyObjectId
 class CredentialDAO:
     def __init__(self):
         self.__data_access_service = DataAccessLayer(
-            model=CredentialSchema, collection_name="credential_mst")
+            model=CredentialSchema,
+            collection_name=DBCollections.CREDENTIAL_MST.value
+        )
 
     def add_credential(self, model: CreateCredentialDto) -> PyObjectId:
         try:

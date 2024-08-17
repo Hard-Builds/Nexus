@@ -6,9 +6,20 @@ from starlette.responses import JSONResponse
 
 from app import get_app
 from app.api import api_router
+from app.database.crud import DataAccessLayer
+from app.database.schemas.indexe_reg import db_index_registry
 from app.middleware.context import RequestContext
 
 app = get_app()
+
+
+@app.on_event("startup")
+async def define_index():
+    for col_name, index_list in db_index_registry.items():
+        if not index_list: continue
+        data_access_service = DataAccessLayer(
+            model=None, collection_name=col_name)
+        data_access_service.handle_indexes(index_list)
 
 
 @app.exception_handler(HTTPException)

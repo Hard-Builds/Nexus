@@ -18,3 +18,4 @@ class UserSchema(PyDanticBaseModel):
     def hash_password(cls, value: str) -> str:
         """Hash the password before storing it in the model."""
         return PasswordUtils.get_password_hash(value)
+

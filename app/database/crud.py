@@ -1,10 +1,13 @@
 import os
 
+from pymongo import IndexModel
+from pymongo.errors import OperationFailure
+
 from app.database.database import DBClient
 from app.middleware.context import RequestContext
 from app.utils.DateUtils import DateUtils
-from app.utils.pyobjectid import PyObjectId
 from app.utils.app_utils import AppUtils
+from app.utils.pyobjectid import PyObjectId
 
 DB_NAME = os.environ["DB_NAME"]
 
@@ -14,6 +17,35 @@ class DataAccessLayer:
         db_instance = DBClient.get_instance()
         self.__db_client = db_instance.client[DB_NAME][collection_name]
         self.__model = model
+
+    def handle_indexes(self, indexes: list[IndexModel]) -> None:
+        existing_indexes: set = self.list_existing_indexes()
+
+        """Generating New Indexes"""
+        for index in indexes:
+            index_name = index.document['name']
+            try:
+                if index_name not in existing_indexes:
+                    self.__db_client.create_indexes([index])
+                    print(f"Created index: {index_name}")
+                else:
+                    print(f"{index_name} Index Already exists!")
+                    existing_indexes.remove(index_name)
+            except OperationFailure as e:
+                print(f"Failed to create index {index_name}: {e}")
+
+        """Dropping Obsolete Indexes"""
+        for index_name in existing_indexes:
+            try:
+                self.__db_client.drop_index(index_name)
+                print(f"Dropped index: {index_name}")
+            except OperationFailure as e:
+                print(f"Failed to drop index {index_name}: {e}")
+
+    def list_existing_indexes(self) -> set:
+        indexes = self.__db_client.list_indexes()
+        indexes: set = set(map(lambda x: x["name"], indexes))
+        return indexes
 
     def get_by_id(self, primary_key: PyObjectId,
                   project_by: dict = None) -> dict:

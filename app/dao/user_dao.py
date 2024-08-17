@@ -2,18 +2,18 @@ from fastapi import HTTPException
 from pymongo.errors import DuplicateKeyError
 
 from app.database.crud import DataAccessLayer
-from app.utils.pyobjectid import PyObjectId
 from app.database.schemas.user import UserSchema
 from app.dto.user import AddUserDto
+from app.enums.db_collections import DBCollections
 from app.enums.http_config import HttpStatusCode
-from app.utils.DateUtils import DateUtils
 from app.utils.app_utils import AppUtils
+from app.utils.pyobjectid import PyObjectId
 
 
 class UserDAO:
     def __init__(self):
         self.__data_access_service = DataAccessLayer(
-            model=UserSchema, collection_name="user_mst")
+            model=UserSchema, collection_name=DBCollections.USER_MST.value)
 
     def get_all_users(self) -> list:
         return self.__data_access_service.get_all(
