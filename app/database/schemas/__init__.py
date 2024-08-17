@@ -7,7 +7,13 @@ from app.utils.DateUtils import DateUtils
 from app.utils.pyobjectid import PyObjectId
 
 
-class PyDanticBaseModel(BaseModel):
+class CustomConfigBaseModel(BaseModel):
+    class Config:
+        from_attributes = True
+        use_enum_values = True
+
+
+class PyDanticBaseModel(CustomConfigBaseModel):
     is_deleted: Optional[bool] = False
     created_on: Optional[int] = DateUtils.get_current_epoch()
     modified_on: Optional[int] = DateUtils.get_current_epoch()
@@ -15,7 +21,3 @@ class PyDanticBaseModel(BaseModel):
         default_factory=RequestContext.get_context_user_id)
     modified_by: Optional[PyObjectId] = Field(
         default_factory=RequestContext.get_context_user_id)
-
-    class Config:
-        from_attributes = True
-        use_enum_values = True

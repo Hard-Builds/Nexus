@@ -1,11 +1,14 @@
 from fastapi import HTTPException
 
+from app.dao.credential_dao import CredentialDAO
 from app.dao.profile_dao import ProfileDAO
-from app.database.schemas.profile import ProfileSchema
+from app.database.schemas.profile import ProfileSchema, ProfileTargetModel
 from app.dto.profile_dto import CreateProfileReqDto, UpdateProfileReqDto, \
     UpdateStatusProfileReqDto
+from app.enums.credential_enum import CredentialProviderEnum
 from app.enums.http_config import HttpStatusCode
 from app.enums.profile_enum import ProfileActiveStatusEnum
+from app.enums.user_enum import UserRolesEnum
 from app.middleware.context import RequestContext
 from app.utils.app_utils import AppUtils
 from app.utils.pyobjectid import PyObjectId
@@ -14,6 +17,7 @@ from app.utils.pyobjectid import PyObjectId
 class ProfileService:
     def __init__(self):
         self.__profile_dao = ProfileDAO()
+        self.__credential_dao = CredentialDAO()
 
     def __profile_validations(self, profile_dtl: dict,
                               check_status=True) -> None:
@@ -39,6 +43,7 @@ class ProfileService:
 
     def add_profile_func(self, req_dto: CreateProfileReqDto) -> PyObjectId:
         try:
+            self.__validate_profile_config(profile_config=req_dto.config)
             profile_id: PyObjectId = self.__profile_dao.add_profile(req_dto)
             return profile_id
         except Exception as exc:
@@ -56,6 +61,8 @@ class ProfileService:
         try:
             profile_id = req_dto.profile_id
             _ = self.get_profile_func(profile_id)
+
+            self.__validate_profile_config(profile_config=req_dto.config)
 
             update_info: dict = ProfileSchema(
                 **req_dto.dict(exclude_none=True)).dict(exclude_unset=True)
@@ -89,3 +96,36 @@ class ProfileService:
             self.__profile_dao.delete_profile(profile_id)
         except Exception as exc:
             AppUtils.handle_exception(exc, is_raise=True)
+
+    def __validate_profile_config(self, profile_config: dict):
+        profile_targets: list[ProfileTargetModel] = profile_config.get(
+            "targets", [])
+        for profile_target in profile_targets:
+            self.__validate_profile_target(profile_target)
+
+    def __validate_profile_target(self, profile_target: ProfileTargetModel):
+        virtual_key: str = profile_target.get("virtual_key")
+        provider: CredentialProviderEnum = profile_target.get("provider")
+
+        search_by = {
+            "api_key": virtual_key,
+            "provider": provider,
+            "is_deleted": False
+        }
+        credential_dtl: dict = self.__credential_dao.get_first_credential_dtl(
+            search_by=search_by)
+
+        if not credential_dtl:
+            raise HTTPException(
+                status_code=HttpStatusCode.NOT_FOUND,
+                detail=f"Invalid key: {virtual_key}"
+            )
+
+        if RequestContext.get_context_var(
+                key="user_role") != UserRolesEnum.ADMIN \
+                and credential_dtl.get(
+            "created_by") != RequestContext.get_context_user_id():
+            raise HTTPException(
+                status_code=HttpStatusCode.UNAUTHORIZED,
+                detail=f"You are not accessible to fetch {virtual_key} key."
+            )

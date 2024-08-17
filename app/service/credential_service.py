@@ -24,7 +24,7 @@ class CredentialService:
         try:
             credential_id = req_dto.credential_id
 
-            cred_dtl: dict = self.__credential_dao.get_credential_dtl(
+            cred_dtl: dict = self.__credential_dao.get_credential_dtl_by_id(
                 credential_id)
             if not cred_dtl:
                 raise HTTPException(
