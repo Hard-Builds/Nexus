@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request
 
-from app.database.schemas import PyObjectId
+from app.utils.pyobjectid import PyObjectId
 from app.dto.user import AddUserDto, UserLoginDto
 from app.enums.http_config import HttpStatusCode
 from app.enums.user import UserRolesEnum
@@ -8,12 +8,12 @@ from app.middleware.auth_middleware import UserValidator
 from app.service.users.user_management import UserManagementService
 from app.utils.app_utils import AppUtils
 
-user_op_api_router = APIRouter()
+users_api_router = APIRouter(prefix="/users", tags=["User management"])
 
 user_management_service = UserManagementService()
 
 
-@user_op_api_router.get("/list")
+@users_api_router.get("/list")
 def list_user_controller() -> dict:
     try:
         user_list: list = user_management_service.list_users()
@@ -26,7 +26,7 @@ def list_user_controller() -> dict:
         AppUtils.handle_exception(exc, is_raise=True)
 
 
-@user_op_api_router.put("/add")
+@users_api_router.put("/add")
 def add_user_controller(req_dto: AddUserDto) -> dict:
     try:
         user_id: PyObjectId = user_management_service.add_user(req_dto)
@@ -39,7 +39,7 @@ def add_user_controller(req_dto: AddUserDto) -> dict:
         AppUtils.handle_exception(exc, is_raise=True)
 
 
-@user_op_api_router.delete("/delete")
+@users_api_router.delete("/delete")
 @UserValidator.pre_authorizer(authorized_roles=[UserRolesEnum.ADMIN])
 def delete_user_controller(request: Request, user_id: PyObjectId) -> dict:
     try:
@@ -52,7 +52,7 @@ def delete_user_controller(request: Request, user_id: PyObjectId) -> dict:
         AppUtils.handle_exception(exc, is_raise=True)
 
 
-@user_op_api_router.post("/disable")
+@users_api_router.post("/disable")
 @UserValidator.pre_authorizer(authorized_roles=[UserRolesEnum.ADMIN])
 def disable_user_controller(request: Request, user_id: PyObjectId) -> dict:
     try:
@@ -65,7 +65,7 @@ def disable_user_controller(request: Request, user_id: PyObjectId) -> dict:
         AppUtils.handle_exception(exc, is_raise=True)
 
 
-@user_op_api_router.get("/login")
+@users_api_router.get("/login")
 def user_login_controller(username: str, password: str) -> dict:
     try:
         req_dto = UserLoginDto(

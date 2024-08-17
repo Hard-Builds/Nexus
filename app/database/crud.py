@@ -1,7 +1,9 @@
 import os
 
 from app.database.database import DBClient
-from app.database.schemas import PyObjectId
+from app.middleware.context import RequestContext
+from app.utils.DateUtils import DateUtils
+from app.utils.pyobjectid import PyObjectId
 from app.utils.app_utils import AppUtils
 
 DB_NAME = os.environ["DB_NAME"]
@@ -40,6 +42,10 @@ class DataAccessLayer:
         return result_id
 
     def update_one_set(self, search_by: dict, update_info: dict) -> int:
+        update_info.update({
+            "modified_on": DateUtils.get_current_epoch(),
+            "modified_by": RequestContext.get_context_user_id()
+        })
         print(f"search_by: {search_by}, update_info: {update_info}")
         result = self.__db_client.update_one(
             filter=search_by,

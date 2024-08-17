@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 
 from app.dao.user_dao import UserDAO
-from app.database.schemas import PyObjectId
+from app.utils.pyobjectid import PyObjectId
 from app.dto.user import AddUserDto, UserLoginDto
 from app.enums.http_config import HttpStatusCode
 from app.enums.user import UserActiveStatusEnum

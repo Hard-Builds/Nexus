@@ -1,37 +1,20 @@
-from typing import Any, Optional
+from typing import Optional
 
-from bson import ObjectId
-from pydantic import BaseModel
-from pydantic.json_schema import JsonSchemaValue
+from pydantic import BaseModel, Field
 
+from app.middleware.context import RequestContext
 from app.utils.DateUtils import DateUtils
-
-
-class PyObjectId(str):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, value: Any, values: dict = None, config: Any = None,
-                 field: Any = None):
-        if not ObjectId.is_valid(value):
-            raise ValueError('Invalid ObjectId')
-        return value
-
-    @classmethod
-    def __get_pydantic_json_schema__(cls, core_schema: JsonSchemaValue,
-                                     handler: Any):
-        return {
-            "type": "string",
-            "format": "objectid",
-        }
+from app.utils.pyobjectid import PyObjectId
 
 
 class PyDanticBaseModel(BaseModel):
     is_deleted: Optional[bool] = False
     created_on: Optional[int] = DateUtils.get_current_epoch()
     modified_on: Optional[int] = DateUtils.get_current_epoch()
+    created_by: Optional[PyObjectId] = Field(
+        default_factory=RequestContext.get_context_user_id)
+    modified_by: Optional[PyObjectId] = Field(
+        default_factory=RequestContext.get_context_user_id)
 
     class Config:
         orm_mode = True

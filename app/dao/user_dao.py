@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from pymongo.errors import DuplicateKeyError
 
 from app.database.crud import DataAccessLayer
-from app.database.schemas import PyObjectId
+from app.utils.pyobjectid import PyObjectId
 from app.database.schemas.user import UserSchema
 from app.dto.user import AddUserDto
 from app.enums.http_config import HttpStatusCode
@@ -29,10 +29,7 @@ class UserDAO:
     def delete_user_by_id(self, user_id: PyObjectId) -> int:
         return self.__data_access_service.update_one_set(
             search_by={"_id": AppUtils.bson_objectId_converter(user_id)},
-            update_info={
-                "is_deleted": True,
-                "modified_on": DateUtils.get_current_epoch()
-            }
+            update_info={"is_deleted": True}
         )
 
     def get_user_dtl_by_id(self, user_id: PyObjectId) -> dict:
