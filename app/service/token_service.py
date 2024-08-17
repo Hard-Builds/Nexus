@@ -3,9 +3,10 @@ from datetime import timedelta
 
 from jose import jwt
 
+from app.enums.os_vars import OSVarsEnum
 from app.utils.DateUtils import DateUtils
 
-JWT_SECRET_KEY = os.environ["JWT_SECRET_KEY"]
+JWT_SECRET_KEY = os.environ[OSVarsEnum.JWT_SECRET_KEY.value]
 
 
 class AuthTokenServices:

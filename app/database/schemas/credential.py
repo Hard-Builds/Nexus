@@ -1,7 +1,7 @@
 from typing import Optional
 
 from app.database.schemas import PyDanticBaseModel, PyObjectId
-from app.enums.credential import CredentialProviderEnum
+from app.enums.credential_enum import CredentialProviderEnum
 
 
 class CredentialSchema(PyDanticBaseModel):

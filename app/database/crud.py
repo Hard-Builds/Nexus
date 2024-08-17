@@ -4,12 +4,13 @@ from pymongo import IndexModel
 from pymongo.errors import OperationFailure
 
 from app.database.database import DBClient
+from app.enums.os_vars import OSVarsEnum
 from app.middleware.context import RequestContext
 from app.utils.DateUtils import DateUtils
 from app.utils.app_utils import AppUtils
 from app.utils.pyobjectid import PyObjectId
 
-DB_NAME = os.environ["DB_NAME"]
+DB_NAME = os.environ[OSVarsEnum.DB_NAME.value]
 
 
 class DataAccessLayer:

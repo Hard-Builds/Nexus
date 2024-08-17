@@ -5,9 +5,9 @@ from jose import ExpiredSignatureError
 
 from app.dao.user_dao import UserDAO
 from app.enums.http_config import HttpStatusCode
-from app.enums.user import UserActiveStatusEnum
+from app.enums.user_enum import UserActiveStatusEnum
 from app.middleware.context import RequestContext
-from app.service.auth.token_service import AuthTokenServices
+from app.service.token_service import AuthTokenServices
 
 
 class UserValidator:

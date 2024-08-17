@@ -3,7 +3,7 @@ from pymongo.errors import DuplicateKeyError
 
 from app.database.crud import DataAccessLayer
 from app.database.schemas.user import UserSchema
-from app.dto.user import AddUserDto
+from app.dto.user_dto import AddUserDto
 from app.enums.db_collections import DBCollections
 from app.enums.http_config import HttpStatusCode
 from app.utils.app_utils import AppUtils

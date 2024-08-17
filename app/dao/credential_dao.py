@@ -3,7 +3,7 @@ from pymongo.errors import DuplicateKeyError
 
 from app.database.crud import DataAccessLayer
 from app.database.schemas.credential import CredentialSchema
-from app.dto.credential import CreateCredentialDto
+from app.dto.credential_dto import CreateCredentialDto
 from app.enums.db_collections import DBCollections
 from app.enums.http_config import HttpStatusCode
 from app.utils.app_utils import AppUtils
@@ -18,11 +18,7 @@ class CredentialDAO:
         )
 
     def add_credential(self, model: CreateCredentialDto) -> PyObjectId:
-        try:
-            return self.__data_access_service.add_one(model.dict())
-        except DuplicateKeyError:
-            raise HTTPException(status_code=HttpStatusCode.BAD_REQUEST,
-                                detail="Username already exists")
+        return self.__data_access_service.add_one(model.dict())
 
     def get_credential_dtl(self, cred_id: PyObjectId) -> dict:
         cred_dtl: dict = self.__data_access_service.get_by_id(

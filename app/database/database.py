@@ -2,7 +2,9 @@ import os
 
 from pymongo import MongoClient
 
-DATABASE_URL = os.environ["DATABASE_URL"]
+from app.enums.os_vars import OSVarsEnum
+
+DATABASE_URL = os.environ[OSVarsEnum.DATABASE_URL.value]
 
 
 class DBClient:

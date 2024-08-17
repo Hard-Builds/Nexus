@@ -2,10 +2,10 @@ from fastapi import HTTPException
 
 from app.dao.user_dao import UserDAO
 from app.utils.pyobjectid import PyObjectId
-from app.dto.user import AddUserDto, UserLoginDto
+from app.dto.user_dto import AddUserDto, UserLoginDto
 from app.enums.http_config import HttpStatusCode
-from app.enums.user import UserActiveStatusEnum
-from app.service.auth.token_service import AuthTokenServices
+from app.enums.user_enum import UserActiveStatusEnum
+from app.service.token_service import AuthTokenServices
 from app.utils.DateUtils import DateUtils
 from app.utils.app_utils import AppUtils
 from app.utils.password_utils import PasswordUtils

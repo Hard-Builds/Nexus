@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Request
 
 from app.utils.pyobjectid import PyObjectId
-from app.dto.user import AddUserDto, UserLoginDto
+from app.dto.user_dto import AddUserDto, UserLoginDto
 from app.enums.http_config import HttpStatusCode
-from app.enums.user import UserRolesEnum
+from app.enums.user_enum import UserRolesEnum
 from app.middleware.auth_middleware import UserValidator
-from app.service.users.user_management import UserManagementService
+from app.service.user_service import UserManagementService
 from app.utils.app_utils import AppUtils
 
 users_api_router = APIRouter(prefix="/users", tags=["User management"])

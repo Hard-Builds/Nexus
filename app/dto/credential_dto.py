@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 from app.utils.pyobjectid import PyObjectId
-from app.enums.user import UserRolesEnum
+from app.enums.user_enum import UserRolesEnum
 
 
 class CreateCredentialReqDto(BaseModel):

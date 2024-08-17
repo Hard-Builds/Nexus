@@ -1,9 +1,9 @@
 from fastapi import HTTPException
 
 from app.dao.credential_dao import CredentialDAO
-from app.dto.credential import CreateCredentialDto, DeleteCredentialDto
+from app.dto.credential_dto import CreateCredentialDto, DeleteCredentialDto
 from app.enums.http_config import HttpStatusCode
-from app.enums.user import UserRolesEnum
+from app.enums.user_enum import UserRolesEnum
 from app.utils.app_utils import AppUtils
 from app.utils.pyobjectid import PyObjectId
 

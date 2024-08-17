@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Request
 
-from app.dto.credential import CreateCredentialDto, CreateCredentialReqDto, \
+from app.dto.credential_dto import CreateCredentialDto, CreateCredentialReqDto, \
     DeleteCredentialDto
 from app.enums.http_config import HttpStatusCode
-from app.enums.user import UserRolesEnum
+from app.enums.user_enum import UserRolesEnum
 from app.middleware.auth_middleware import UserValidator
 from app.middleware.context import RequestContext
-from app.service.credential.credential_service import CredentialService
+from app.service.credential_service import CredentialService
 from app.utils.app_utils import AppUtils
 from app.utils.pyobjectid import PyObjectId
 

@@ -7,7 +7,7 @@ from starlette.responses import JSONResponse
 from app import get_app
 from app.api import api_router
 from app.database.crud import DataAccessLayer
-from app.database.schemas.indexe_reg import db_index_registry
+from app.database.indexe_reg import db_index_registry
 from app.middleware.context import RequestContext
 
 app = get_app()

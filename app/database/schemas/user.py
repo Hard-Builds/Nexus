@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import validator, EmailStr
 
 from app.database.schemas import PyDanticBaseModel
-from app.enums.user import UserRolesEnum, UserActiveStatusEnum
+from app.enums.user_enum import UserRolesEnum, UserActiveStatusEnum
 from app.utils.password_utils import PasswordUtils
 
 
