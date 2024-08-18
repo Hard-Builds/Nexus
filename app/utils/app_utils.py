@@ -1,3 +1,6 @@
+import random
+import re
+import string
 import sys
 import traceback
 from typing import Any
@@ -61,3 +64,14 @@ class AppUtils:
             return str(data)
         else:
             return data
+
+    @staticmethod
+    def convert_special_chars_to_underscore(input_str: str) -> str:
+        return re.sub(r'\W+', '_', input_str)
+
+    @staticmethod
+    def get_random_str(length: int) -> str:
+        characters: str = string.ascii_letters + string.digits
+        random_string: str = "".join(
+            [random.choice(characters) for _ in range(length)])
+        return str(random_string)
