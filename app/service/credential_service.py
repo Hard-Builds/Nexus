@@ -16,10 +16,12 @@ class CredentialService:
         self.__profile_dao = ProfileDAO()
         self.__credential_dao = CredentialDAO()
 
-    def add_credential_func(self, req_dto: CreateCredentialDto) -> PyObjectId:
+    def add_credential_func(self, req_dto: CreateCredentialDto) -> str:
         try:
-            credential_id = self.__credential_dao.add_credential(req_dto)
-            return credential_id
+            req_dto.key = self.__gen_credential_key(req_dto.name)
+            _ = self.__credential_dao.add_credential(req_dto)
+            credential_key = req_dto.key
+            return credential_key
         except Exception as exc:
             AppUtils.handle_exception(exc, is_raise=True)
 
@@ -74,3 +76,12 @@ class CredentialService:
                 status_code=HttpStatusCode.BAD_REQUEST,
                 detail=f"virtual_key: {api_key} is in use!"
             )
+
+    def __gen_credential_key(self, name: str) -> str:
+        if len(name) > 5:
+            name = name[:5]
+        name: str = AppUtils.convert_special_chars_to_underscore(name)
+        random_string: str = AppUtils.get_random_str(length=7)
+
+        service_key: str = f"{name}-{random_string}"
+        return service_key

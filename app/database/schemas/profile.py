@@ -31,8 +31,8 @@ class ProfileStrategyModel(CustomConfigBaseModel):
 
 class ProfileConfigModel(CustomConfigBaseModel):
     cache: Optional[ProfileCacheModel] = {}
-    strategy: ProfileStrategyModel
-    targets: List[ProfileTargetModel]
+    strategy: Optional[ProfileStrategyModel] = {}
+    targets: Optional[List[ProfileTargetModel]] = {}
 
 
 class ProfileSchema(PyDanticBaseModel):

@@ -27,9 +27,9 @@ class AppService:
             AppUtils.handle_exception(exc, is_raise=True)
 
     def __generate_service_key(self, app_name: str) -> str:
-        app_name: str = AppUtils.convert_object_id_to_str(app_name)
         if len(app_name) > 5:
             app_name = app_name[:5]
+        app_name: str = AppUtils.convert_special_chars_to_underscore(app_name)
 
         user_id: PyObjectId = RequestContext.get_context_user_id()
         user_id: str = str(user_id)

@@ -58,14 +58,12 @@ class DataAccessLayer:
             "is_deleted": False
         }
         result: dict = self.__db_client.find_one(search_by, project_by)
-        result: dict = AppUtils.convert_object_id_to_str(result)
         print(f"result: {result}")
         return result
 
     def get_all(self, search_by: dict, project_by: dict = None) -> list:
         print(f"search_by: {search_by}, project_by: {project_by}")
         result: list = list(self.__db_client.find(search_by, project_by))
-        result: list = AppUtils.convert_object_id_to_str(result)
         print(f"result: {result}")
         return result
 
@@ -95,7 +93,6 @@ class DataAccessLayer:
     def get_first_row_by_filter(self, search_by: dict,
                                 project_by: dict = None) -> dict:
         result: dict = self.__db_client.find_one(search_by, project_by)
-        result: dict = AppUtils.convert_object_id_to_str(result)
         print(f"result: {result}")
         return result
 
@@ -103,6 +100,5 @@ class DataAccessLayer:
             self, pipeline: list[MongoPipelineBuilder]) -> Optional[list]:
         print(f"pipeline: {pipeline}")
         result_list: list = list(self.__db_client.aggregate(pipeline))
-        result_list: list = AppUtils.convert_object_id_to_str(result_list)
         print(f"result_list: {result_list}")
         return result_list

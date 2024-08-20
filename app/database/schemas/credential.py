@@ -10,3 +10,4 @@ class CredentialSchema(PyDanticBaseModel):
     provider: Optional[CredentialProviderEnum] = CredentialProviderEnum.OPEN_AI.value
     api_key: str
     metadata: Optional[dict] = {}
+    key: str

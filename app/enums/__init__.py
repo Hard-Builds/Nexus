@@ -7,6 +7,7 @@ class StrEnum(Enum):
             return self.value == other
         return super().__eq__(other)
 
+
 class IntEnum(Enum):
     def __eq__(self, other):
         if isinstance(other, int):

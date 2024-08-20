@@ -18,7 +18,7 @@ class AppUtils:
         return {
             "status_code": status_code,
             "message": message,
-            "data": data
+            "data": AppUtils.convert_object_id_to_str(data)
         }
 
     @staticmethod
@@ -67,7 +67,8 @@ class AppUtils:
 
     @staticmethod
     def convert_special_chars_to_underscore(input_str: str) -> str:
-        return re.sub(r'\W+', '_', input_str)
+        input_str: str = input_str.strip()
+        return re.sub(r'\W+', '-', input_str)
 
     @staticmethod
     def get_random_str(length: int) -> str:

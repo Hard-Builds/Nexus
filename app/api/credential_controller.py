@@ -23,12 +23,11 @@ def create_credential_controller(request: Request,
     try:
         req_dto = CreateCredentialDto(**req_base_dto.dict())
         req_dto.user_id = RequestContext.get_context_user_id()
-        credential_id: PyObjectId = credential_service.add_credential_func(
-            req_dto)
+        credential_key: str = credential_service.add_credential_func(req_dto)
         response = AppUtils.response(
             status_code=HttpStatusCode.OK,
             message="Credential Added Successfully!",
-            data=str(credential_id)
+            data=credential_key
         )
         return response
     except Exception as exc:

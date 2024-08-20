@@ -108,7 +108,7 @@ class ProfileService:
         provider: CredentialProviderEnum = profile_target.get("provider")
 
         search_by = {
-            "api_key": virtual_key,
+            "key": virtual_key,
             "provider": provider,
             "is_deleted": False
         }

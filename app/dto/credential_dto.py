@@ -2,8 +2,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from app.utils.pyobjectid import PyObjectId
 from app.enums.user_enum import UserRolesEnum
+from app.utils.pyobjectid import PyObjectId
 
 
 class CreateCredentialReqDto(BaseModel):
@@ -15,6 +15,7 @@ class CreateCredentialReqDto(BaseModel):
 
 class CreateCredentialDto(CreateCredentialReqDto):
     user_id: Optional[PyObjectId] = None
+    key: Optional[str] = None
 
 
 class DeleteCredentialDto(BaseModel):

@@ -3,11 +3,11 @@ import time
 import uuid
 
 import uvicorn as uvicorn
-from fastapi import HTTPException, Request, Response
+from fastapi import HTTPException, Request, Response, Depends
 from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 
-from app import get_app
+from app import get_app, common_headers
 from app.api import api_router
 from app.database.crud import DataAccessLayer
 from app.database.indexe_reg import db_index_registry
@@ -71,5 +71,5 @@ async def middleware_function(request: Request, call_next):
 
 
 if __name__ == "__main__":
-    app.include_router(api_router)
+    app.include_router(api_router, dependencies=[Depends(common_headers)])
     uvicorn.run(app, host="0.0.0.0", port=8000)

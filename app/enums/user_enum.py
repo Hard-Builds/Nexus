@@ -1,4 +1,4 @@
-from enum import StrEnum
+from app.enums import StrEnum
 
 
 class UserRolesEnum(StrEnum):
