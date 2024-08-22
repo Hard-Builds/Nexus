@@ -1,0 +1,25 @@
+from fastapi import FastAPI, Request
+
+from app.dto.open_ai_dto import OpenAIChatReqDto
+from app.enums.http_config import HttpStatusCode
+from app.middleware.auth_middleware import UserValidator
+from app.service.open_ai_service import OpenAIService
+from app.utils.app_utils import AppUtils
+
+open_api_service_router = FastAPI(prefix="/open-ai", tags=["OpenAI Services"])
+
+open_api_service = OpenAIService()
+
+
+@open_api_service_router.put("/completion")
+@UserValidator.pre_authorizer(support_app_key=True)
+def open_ai_chat_controller(request: Request, req_dto: OpenAIChatReqDto):
+    try:
+        open_api_service.chat_completion_func(req_dto)
+        response = AppUtils.response(
+            status_code=HttpStatusCode.OK,
+            message=""
+        )
+        return response
+    except Exception as exc:
+        AppUtils.handle_exception(exc, is_raise=True)

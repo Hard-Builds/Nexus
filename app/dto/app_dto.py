@@ -13,6 +13,7 @@ class AddAppReqDto(BaseModel):
 
 class AddAppDto(AddAppReqDto):
     service_key: Optional[str] = ""
+    profile_id: Optional[PyObjectId] = None
 
 
 class KeyRotateAppDto(AddAppReqDto):

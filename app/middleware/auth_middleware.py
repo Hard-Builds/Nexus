@@ -3,7 +3,9 @@ from functools import wraps
 from fastapi import Request, HTTPException
 from jose import ExpiredSignatureError
 
+from app.dao.app_dao import AppDao
 from app.dao.user_dao import UserDAO
+from app.enums.app_enum import AppActiveStatusEnum
 from app.enums.http_config import HttpStatusCode
 from app.enums.user_enum import UserActiveStatusEnum
 from app.middleware.context import RequestContext
@@ -12,7 +14,7 @@ from app.service.token_service import AuthTokenServices
 
 class UserValidator:
     @staticmethod
-    def authorise(request: Request, authorized_roles: list):
+    def user_authorise(request: Request, authorized_roles: list):
         try:
             jwt_token = request.headers.get('authorization')
             if not jwt_token:
@@ -54,11 +56,46 @@ class UserValidator:
             )
 
     @staticmethod
-    def pre_authorizer(authorized_roles: list):
+    def app_key_authorise(request: Request):
+        app_key: str = request.headers.get('app_key')
+
+        if not app_key:
+            raise HTTPException(
+                status_code=HttpStatusCode.UNAUTHORIZED,
+                detail="App Key is missing."
+            )
+
+        app_dao: AppDao = AppDao()
+        app_dtl: dict = app_dao.get_app_dtl_dict({
+            "service_key": app_key,
+            "is_deleted": False
+        })
+
+        if not app_dtl:
+            raise HTTPException(
+                status_code=HttpStatusCode.UNAUTHORIZED,
+                detail="Invalid App Key!"
+            )
+
+        if app_dtl.get("active_status") != AppActiveStatusEnum.ACTIVE:
+            raise HTTPException(
+                status_code=HttpStatusCode.UNAUTHORIZED,
+                detail="App Key is not active!"
+            )
+
+        RequestContext.set_context_var(key="profile_id",
+                                       value=app_dtl.get("profile_id"))
+
+    @staticmethod
+    def pre_authorizer(authorized_roles: list = None,
+                       support_app_key: bool = None):
         def decorator(func):
             @wraps(func)
             def wrapper(request: Request, *args, **kwargs):
-                UserValidator.authorise(request, authorized_roles)
+                if authorized_roles is not None:
+                    UserValidator.user_authorise(request, authorized_roles)
+                elif support_app_key is not None:
+                    UserValidator.app_key_authorise(request)
                 return func(request, *args, **kwargs)
 
             return wrapper

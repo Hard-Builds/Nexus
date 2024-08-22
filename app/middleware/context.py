@@ -8,7 +8,8 @@ from app.utils.pyobjectid import PyObjectId
 context_var_registry = {
     "user_id": ContextVar("user_id", default=None),
     "user_role": ContextVar("user_role", default=None),
-    "trace_id": ContextVar("trace_id", default=None)
+    "trace_id": ContextVar("trace_id", default=None),
+    "profile_id": ContextVar("profile_id", default=None)
 }
 
 
