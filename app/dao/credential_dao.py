@@ -34,3 +34,6 @@ class CredentialDAO:
                                  project_by: dict = None) -> dict:
         return self.__data_access_service.get_first_row_by_filter(
             search_by=search_by, project_by=project_by)
+
+    def get_cred_dtls(self, search_by: dict) -> dict:
+        return self.__data_access_service.get_first_row_by_filter(search_by)

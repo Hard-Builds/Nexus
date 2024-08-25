@@ -1,5 +1,6 @@
 from typing import Optional
 
+from bson import ObjectId
 from pydantic import BaseModel, Field
 
 from app.middleware.context import RequestContext
@@ -21,3 +22,8 @@ class PyDanticBaseModel(CustomConfigBaseModel):
         default_factory=RequestContext.get_context_user_id)
     modified_by: Optional[PyObjectId] = Field(
         default_factory=RequestContext.get_context_user_id)
+
+    class Config:
+        json_encoders = {
+            ObjectId: lambda v: str(v)
+        }

@@ -1,6 +1,6 @@
 """Initialising context vars"""
 from contextvars import ContextVar
-from typing import Optional
+from typing import Optional, Union
 
 from app.utils.app_utils import AppUtils
 from app.utils.pyobjectid import PyObjectId
@@ -15,7 +15,7 @@ context_var_registry = {
 
 class RequestContext:
     @staticmethod
-    def get_context_var(key: str) -> str:
+    def get_context_var(key: str) -> Union[str, PyObjectId]:
         return context_var_registry[key].get()
 
     @staticmethod

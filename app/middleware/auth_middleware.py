@@ -10,6 +10,7 @@ from app.enums.http_config import HttpStatusCode
 from app.enums.user_enum import UserActiveStatusEnum
 from app.middleware.context import RequestContext
 from app.service.token_service import AuthTokenServices
+from app.utils.pyobjectid import PyObjectId
 
 
 class UserValidator:
@@ -31,23 +32,8 @@ class UserValidator:
                 "username": username,
                 "is_deleted": False
             })
-
-            if user_dtl["active_status"] != UserActiveStatusEnum.ACTIVE:
-                raise HTTPException(
-                    status_code=HttpStatusCode.FORBIDDEN,
-                    detail="Your account has been deactivated, please contact admin for further help."
-                )
-
-            if user_dtl["role"] not in authorized_roles:
-                raise HTTPException(
-                    status_code=HttpStatusCode.UNAUTHORIZED,
-                    detail="Sorry, you can't access this functionality. Please check your group settings or contact support."
-                )
-
-            RequestContext.set_context_var(key="user_id",
-                                           value=user_dtl["_id"])
-            RequestContext.set_context_var(key="user_role",
-                                           value=user_dtl["role"])
+            UserValidator.validate_user_dtls(user_dtl,
+                                             authorized_roles=authorized_roles)
 
         except ExpiredSignatureError:
             raise HTTPException(
@@ -57,7 +43,7 @@ class UserValidator:
 
     @staticmethod
     def app_key_authorise(request: Request):
-        app_key: str = request.headers.get('app_key')
+        app_key: str = request.headers.get("x-api-key")
 
         if not app_key:
             raise HTTPException(
@@ -85,6 +71,32 @@ class UserValidator:
 
         RequestContext.set_context_var(key="profile_id",
                                        value=app_dtl.get("profile_id"))
+
+        """Getting user details"""
+        user_dao = UserDAO()
+        user_id: PyObjectId = app_dtl.get("created_by")
+        user_dtl: dict = user_dao.get_user_dtl_by_id(user_id)
+        UserValidator.validate_user_dtls(user_dtl)
+
+    @staticmethod
+    def validate_user_dtls(user_dtl: dict, authorized_roles: list = None):
+        if user_dtl["active_status"] != UserActiveStatusEnum.ACTIVE:
+            raise HTTPException(
+                status_code=HttpStatusCode.FORBIDDEN,
+                detail="Your account has been deactivated, please contact admin for further help."
+            )
+
+        if authorized_roles is not None and user_dtl[
+            "role"] not in authorized_roles:
+            raise HTTPException(
+                status_code=HttpStatusCode.UNAUTHORIZED,
+                detail="Sorry, you can't access this functionality. Please check your group settings or contact support."
+            )
+
+        RequestContext.set_context_var(key="user_id",
+                                       value=user_dtl["_id"])
+        RequestContext.set_context_var(key="user_role",
+                                       value=user_dtl["role"])
 
     @staticmethod
     def pre_authorizer(authorized_roles: list = None,

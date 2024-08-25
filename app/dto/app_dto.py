@@ -9,11 +9,11 @@ from app.utils.pyobjectid import PyObjectId
 class AddAppReqDto(BaseModel):
     name: str
     logo: Optional[str] = ""
+    profile_id: PyObjectId
 
 
 class AddAppDto(AddAppReqDto):
     service_key: Optional[str] = ""
-    profile_id: Optional[PyObjectId] = None
 
 
 class KeyRotateAppDto(AddAppReqDto):

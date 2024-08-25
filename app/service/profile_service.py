@@ -27,7 +27,8 @@ class ProfileService:
                 detail="Profile Details Not Found!"
             )
 
-        if profile_dtl.get(
+        user_role: str = RequestContext.get_context_var("user_role")
+        if user_role != UserRolesEnum.ADMIN or profile_dtl.get(
                 "created_by") != RequestContext.get_context_user_id():
             raise HTTPException(
                 status_code=HttpStatusCode.BAD_REQUEST,

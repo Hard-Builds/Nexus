@@ -85,3 +85,14 @@ class CredentialService:
 
         service_key: str = f"{name}-{random_string}"
         return service_key
+
+    def get_credential_dtl_by_key(self, service_key: str) -> dict:
+        search_by: dict = {"key": service_key, "is_deleted": False}
+        cred_dtl: dict = self.__credential_dao.get_cred_dtls(search_by)
+
+        if not cred_dtl:
+            raise HTTPException(
+                status_code=HttpStatusCode.BAD_REQUEST,
+                detail="Key not found!"
+            )
+        return cred_dtl
