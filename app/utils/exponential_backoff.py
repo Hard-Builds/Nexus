@@ -20,7 +20,7 @@ class ExpBackoff:
             for attempt in range(self.__max_retries):
                 status_code, resp = func(*args, **kwargs)
                 if status_code not in self.__on_status_codes:
-                    break
+                    return resp
                 else:
                     print(
                         f"Attempt {attempt + 1} failed: {status_code}. "
@@ -28,6 +28,5 @@ class ExpBackoff:
                     )
                     time.sleep(delay)
                     delay *= self.__multiplier
-            return resp
 
         return wrapper_func
