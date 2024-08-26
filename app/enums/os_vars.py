@@ -6,3 +6,5 @@ class OSVarsEnum(StrEnum):
     DATABASE_URL = "DATABASE_URL"
     JWT_SECRET_KEY = "JWT_SECRET_KEY"
     ENV = "ENV"
+    REDIS_HOST = "REDIS_HOST"
+    REDIS_PORT = "REDIS_PORT"
