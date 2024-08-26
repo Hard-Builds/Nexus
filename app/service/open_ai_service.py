@@ -31,11 +31,21 @@ class OpenAIService:
         api_key: str = cred_dtls.get("api_key")
         retry_dtl: dict = virtual_key_dtl.get("retry")
 
+        fallback_dtl: dict = config_json.get("fallback")
+        if fallback_dtl:
+            fallback_key: str = fallback_dtl.get("virtual_key")
+            fallback_cred_dtls: dict = self.__credential_service.get_credential_dtl_by_key(
+                service_key=fallback_key)
+            fallback_api_key: str = fallback_cred_dtls.get("api_key")
+        else:
+            fallback_api_key: str = ""
+
         """Invoking openai sdk with exp backoff"""
         openai_client = OpenAIClient(
             api_key=api_key,
             max_retries=retry_dtl.get("attempts"),
-            on_status_codes=retry_dtl.get("onStatusCodes")
+            on_status_codes=retry_dtl.get("onStatusCodes"),
+            fallback_api_key=fallback_api_key
         )
         openai_client.complete(req_dto)
 

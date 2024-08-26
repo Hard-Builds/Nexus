@@ -12,12 +12,15 @@ class ProfileRetryModel(CustomConfigBaseModel):
     attempts: int
     onStatusCodes: List[int]
 
+class ProfileFallbackModel(CustomConfigBaseModel):
+    provider: CredentialProviderEnum
+    virtual_key: str
 
 class ProfileTargetModel(CustomConfigBaseModel):
     provider: CredentialProviderEnum
     virtual_key: str
     weight: float = Field(ge=0, le=1)
-    retry: ProfileRetryModel
+    retry: Optional[ProfileRetryModel] = {}
 
 
 class ProfileCacheModel(CustomConfigBaseModel):
@@ -33,7 +36,7 @@ class ProfileConfigModel(CustomConfigBaseModel):
     cache: Optional[ProfileCacheModel] = {}
     strategy: Optional[ProfileStrategyModel] = {}
     targets: Optional[List[ProfileTargetModel]] = {}
-
+    fallback: Optional[ProfileFallbackModel] = {}
 
 class ProfileSchema(PyDanticBaseModel):
     name: Optional[str] = ""

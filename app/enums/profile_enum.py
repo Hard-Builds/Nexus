@@ -7,6 +7,3 @@ class ProfileActiveStatusEnum(StrEnum):
 
 class ProfileStrategyModeEnum(StrEnum):
     LOADBALANCE = "loadbalance"
-    FALLBACK = "fallback"
-    RETRY = "retry"
-    CACHING = "caching"
