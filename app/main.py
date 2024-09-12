@@ -12,6 +12,7 @@ from app.api import api_router
 from app.client.redis import RedisClient
 from app.enums.os_vars import OSVarsEnum
 from app.middleware.context import RequestContext
+from app.utils.cryptography_utils import CryptographyUtils
 
 app = get_app()
 env = os.environ[OSVarsEnum.ENV.value]
@@ -20,6 +21,7 @@ env = os.environ[OSVarsEnum.ENV.value]
 @app.on_event("startup")
 async def define_index():
     RedisClient()
+    CryptographyUtils()
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):

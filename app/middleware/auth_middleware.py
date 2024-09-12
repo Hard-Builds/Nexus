@@ -106,7 +106,7 @@ class UserValidator:
             def wrapper(request: Request, *args, **kwargs):
                 if authorized_roles is not None:
                     UserValidator.user_authorise(request, authorized_roles)
-                elif support_app_key is not None:
+                if support_app_key is not None:
                     UserValidator.app_key_authorise(request)
                 return func(request, *args, **kwargs)
 
