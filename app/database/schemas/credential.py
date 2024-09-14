@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import Field
+from pydantic import validator
 
 from app.database.schemas import PyDanticBaseModel
 from app.enums.credential_enum import CredentialProviderEnum
@@ -12,6 +12,10 @@ class CredentialSchema(PyDanticBaseModel):
     description: Optional[str] = ""
     provider: Optional[
         CredentialProviderEnum] = CredentialProviderEnum.OPEN_AI.value
-    api_key: str = Field(default_factory=CryptographyUtils.encrypt)
+    api_key: str
     metadata: Optional[dict] = {}
     key: str
+
+    @validator("api_key")
+    def encrypt_api_key(cls, val):
+        return CryptographyUtils.encrypt(val)
