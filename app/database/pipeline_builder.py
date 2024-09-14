@@ -100,4 +100,4 @@ class MongoPipelineBuilder:
 
     @staticmethod
     def count_operator(key_name: str) -> dict:
-        return {MongoOperatorsEnum.COUNT: key_name}
+        return {MongoOperatorsEnum.COUNT.value: key_name}

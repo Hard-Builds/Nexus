@@ -1,7 +1,7 @@
 from typing import Optional
 
 from bson import ObjectId
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, SecretStr
 
 from app.middleware.context import RequestContext
 from app.utils.DateUtils import DateUtils
@@ -25,5 +25,6 @@ class PyDanticBaseModel(CustomConfigBaseModel):
 
     class Config:
         json_encoders = {
-            ObjectId: lambda v: str(v)
+            ObjectId: lambda v: str(v),
+            SecretStr: lambda v: v.get_secret_value()
         }

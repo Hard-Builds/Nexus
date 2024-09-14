@@ -1,11 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, SecretStr
 
 
 class AddUserDto(BaseModel):
     name: str
     username: str
-    password: str
+    password: SecretStr
 
 class UserLoginDto(BaseModel):
     username: str
-    password: str
+    password: SecretStr

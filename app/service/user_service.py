@@ -88,7 +88,7 @@ class UserManagementService:
                 )
 
             valid_pwd = PasswordUtils.verify_password(
-                plain_password=req_dto.password,
+                plain_password=req_dto.password.get_secret_value(),
                 hashed_password=user_dtl["password"]
             )
 
