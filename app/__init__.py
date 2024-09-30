@@ -4,12 +4,18 @@ from fastapi.security import APIKeyHeader
 
 from core.api_settings import get_api_settings
 
-API_KEY_NAME = "authorization"
-api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
+api_key_header = APIKeyHeader(name="x-api-key", auto_error=False)
+authorization_header = APIKeyHeader(name="Authorization", auto_error=False)
 
 
-def common_headers(authorization: str = Security(api_key_header)):
-    return {"authorization": authorization}
+def common_headers(
+        authorization: str = Security(authorization_header),
+        x_api_key: str = Security(api_key_header)
+):
+    return {
+        "authorization": authorization,
+        "x-api-key": x_api_key
+    }
 
 
 def get_app() -> FastAPI:

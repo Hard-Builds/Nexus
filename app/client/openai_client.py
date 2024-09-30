@@ -3,6 +3,7 @@ from openai import OpenAI, OpenAIError
 
 from app.dto.open_ai_dto import OpenAIChatReqDto
 from app.enums.http_config import HttpStatusCode
+from app.utils.cryptography_utils import CryptographyUtils
 from app.utils.exponential_backoff import ExpBackoff
 
 
@@ -23,12 +24,15 @@ class OpenAIClient:
         @self.__exp_backoff_utils
         def _complete(api_key: str):
             try:
+                req_body = req_dto.dict()
+                print(f"req_body : {req_body}")
+                api_key = CryptographyUtils.decrypt(api_key)
                 client = OpenAI(api_key=api_key)
-                response = client.completions.create(**req_dto.dict())
-                print(response.choices[0].message['content'])
+                response = client.completions.create(**req_body)
+                print(response)
                 return HttpStatusCode.OK, response
             except OpenAIError as e:
                 print(f"An error occurred: {e}")
                 return e.status_code, {}
 
-        return _complete()
+        return _complete

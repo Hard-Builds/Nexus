@@ -16,11 +16,6 @@ open_api_service = OpenAIService()
 @UserValidator.pre_authorizer(support_app_key=True)
 def open_ai_chat_controller(request: Request, req_dto: OpenAIChatReqDto):
     try:
-        open_api_service.completion_func(req_dto)
-        response = AppUtils.response(
-            status_code=HttpStatusCode.OK,
-            message=""
-        )
-        return response
+        return open_api_service.completion_func(req_dto)
     except Exception as exc:
         AppUtils.handle_exception(exc, is_raise=True)

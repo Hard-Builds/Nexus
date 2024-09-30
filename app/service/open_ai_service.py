@@ -47,9 +47,11 @@ class OpenAIService:
             on_status_codes=retry_dtl.get("onStatusCodes"),
             fallback_api_key=fallback_api_key
         )
-        openai_client.complete(req_dto)
+        _, response, headers = openai_client.complete(req_dto)
 
         """Appending log file"""
+
+        return response
 
     def __get_virtual_key(self, targets: list) -> Union[dict, None]:
 

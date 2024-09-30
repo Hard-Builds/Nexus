@@ -19,10 +19,16 @@ class ExpBackoff:
     def __call__(self, func):
         @wraps(func)
         def wrapper_func(*args, **kwargs):
+
+            status_code: HttpStatusCode = HttpStatusCode.INTERNAL_SERVER_ERROR
+            resp: dict = None
+            headers: dict = {}
+
             delay = self.__initial_delay
             for attempt in range(self.__max_retries):
                 status_code, resp = func(self.__api_key, *args, **kwargs)
                 if status_code not in self.__on_status_codes:
+                    headers["last-used-key"] = self.__api_key
                     return status_code, resp
                 elif attempt < self.__max_retries - 1:
                     print(
@@ -31,8 +37,11 @@ class ExpBackoff:
                     )
                     time.sleep(delay)
                     delay *= self.__multiplier
+
             if self.__fallback_api_key:
-                return func(self.__fallback_api_key, *args, **kwargs)
+                status_code, resp = func(self.__fallback_api_key, *args, **kwargs)
+
+            return status_code, resp
 
         return wrapper_func
 
