@@ -3,6 +3,7 @@ import time
 from functools import wraps
 
 from app.enums.http_config import HttpStatusCode
+from app.utils.cryptography_utils import CryptographyUtils
 
 
 class ExpBackoff:
@@ -31,10 +32,12 @@ class ExpBackoff:
                 "fallback-processing-time": ""
             }
 
+            api_key = CryptographyUtils.decrypt(self.__api_key)
+
             for itr, attempt in enumerate(range(self.__max_retries)):
 
                 start_time: time = time.time()
-                status_code, resp = func(self.__api_key, *args, **kwargs)
+                status_code, resp = func(api_key=api_key, *args, **kwargs)
                 time_taken: time = time.time() - start_time
                 time_map.append("{:.2f}".format(time_taken))
 
@@ -46,9 +49,12 @@ class ExpBackoff:
 
             if self.__fallback_api_key and status_code in self.__on_status_codes:
                 print("Attempting Fallback...")
+
+                fallback_api_key = CryptographyUtils.decrypt(
+                    self.__fallback_api_key)
                 start_time: time = time.time()
-                status_code, resp = func(self.__fallback_api_key, *args,
-                                         **kwargs)
+                status_code, resp = func(api_key=fallback_api_key,
+                                         *args, **kwargs)
                 if status_code == HttpStatusCode.OK:
                     headers["execution-key"] = self.__fallback_virtual_key
                 time_taken: time = time.time() - start_time

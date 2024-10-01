@@ -23,12 +23,13 @@ class OpenAIClient:
 
     def complete(self, req_dto: OpenAIChatReqDto) -> \
             (HttpStatusCode, Response):
+
+        req_body = req_dto.dict()
+        print(f"req_body : {req_body}")
+
         @self.__exp_backoff_utils
         def _complete(api_key: str):
             try:
-                req_body = req_dto.dict()
-                print(f"req_body : {req_body}")
-                api_key = CryptographyUtils.decrypt(api_key)
                 client = OpenAI(api_key=api_key)
                 response = client.completions.create(**req_body)
                 print(response)
