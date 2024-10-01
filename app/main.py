@@ -42,7 +42,7 @@ async def middleware_function(request: Request, call_next):
 
     RequestContext.set_context_var(key="trace_id", value=trace_id)
     response: Response = await call_next(request)
-    response.headers.append("trace_id", trace_id)
+    response.headers.append("request_id", trace_id)
 
     request_url_path: str = request.url.path
     time_taken: time = time.time() - start_time

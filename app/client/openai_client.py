@@ -8,15 +8,17 @@ from app.utils.exponential_backoff import ExpBackoff
 
 
 class OpenAIClient:
-    def __init__(self, api_key: str,
-                 fallback_api_key: str,
+    def __init__(self, api_key: str, fallback_api_key: str,
+                 virtual_key: str, fallback_virtual_key: str,
                  max_retries: int = None,
                  on_status_codes: list[HttpStatusCode] = None):
         self.__exp_backoff_utils = ExpBackoff(
             max_retries=max_retries,
             on_status_codes=on_status_codes,
-            api_key = api_key,
-            fallback_api_key=fallback_api_key
+            api_key=api_key,
+            fallback_api_key=fallback_api_key,
+            virtual_key=virtual_key,
+            fallback_virtual_key=fallback_virtual_key
         )
 
     def complete(self, req_dto: OpenAIChatReqDto) -> \
@@ -35,4 +37,4 @@ class OpenAIClient:
                 print(f"An error occurred: {e}")
                 return e.status_code, {}
 
-        return _complete
+        return _complete()

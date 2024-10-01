@@ -1,6 +1,8 @@
 import random
 from typing import Union
 
+from starlette.responses import JSONResponse
+
 from app.client.openai_client import OpenAIClient
 from app.dto.open_ai_dto import OpenAIChatReqDto
 from app.middleware.context import RequestContext
@@ -33,9 +35,9 @@ class OpenAIService:
 
         fallback_dtl: dict = config_json.get("fallback")
         if fallback_dtl:
-            fallback_key: str = fallback_dtl.get("virtual_key")
+            fallback_virtual_key: str = fallback_dtl.get("virtual_key")
             fallback_cred_dtls: dict = self.__credential_service.get_credential_dtl_by_key(
-                service_key=fallback_key)
+                service_key=fallback_virtual_key)
             fallback_api_key: str = fallback_cred_dtls.get("api_key")
         else:
             fallback_api_key: str = ""
@@ -45,12 +47,19 @@ class OpenAIService:
             api_key=api_key,
             max_retries=retry_dtl.get("attempts"),
             on_status_codes=retry_dtl.get("onStatusCodes"),
-            fallback_api_key=fallback_api_key
+            fallback_api_key=fallback_api_key,
+            virtual_key=cred_virtual_key,
+            fallback_virtual_key=fallback_virtual_key
         )
-        _, response, headers = openai_client.complete(req_dto)
+        status_code, client_response, headers = openai_client.complete(req_dto)
 
-        """Appending log file"""
+        # TODO: Appending log file
 
+        response = JSONResponse(
+            status_code=status_code,
+            headers=headers,
+            content=client_response.dict()
+        )
         return response
 
     def __get_virtual_key(self, targets: list) -> Union[dict, None]:
