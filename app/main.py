@@ -10,6 +10,7 @@ from starlette.responses import JSONResponse
 from app import get_app, common_headers
 from app.api import api_router
 from app.client.redis import RedisClient
+from app.enums.http_config import HttpStatusCode
 from app.enums.os_vars import OSVarsEnum
 from app.middleware.context import RequestContext
 from app.utils.cryptography_utils import CryptographyUtils
@@ -42,11 +43,14 @@ async def middleware_function(request: Request, call_next):
 
     RequestContext.set_context_var(key="trace_id", value=trace_id)
     response: Response = await call_next(request)
-    response.headers.append("request_id", trace_id)
 
     request_url_path: str = request.url.path
     time_taken: time = time.time() - start_time
-    response_status_code: int = response.status_code
+    time_taken: str = "{:.2f}".format(time_taken)
+    response_status_code: HttpStatusCode = response.status_code
+
+    response.headers.append("request-id", trace_id)
+    response.headers.append("system-processing-time", time_taken)
 
     route = request.scope.get("route")
     if route and isinstance(route, APIRoute):

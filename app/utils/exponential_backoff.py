@@ -1,3 +1,4 @@
+import json
 import time
 from functools import wraps
 
@@ -8,12 +9,9 @@ class ExpBackoff:
     def __init__(self, api_key: str, fallback_api_key: str,
                  virtual_key: str, fallback_virtual_key: str,
                  max_retries: int = None,
-                 on_status_codes: list[HttpStatusCode] = None,
-                 initial_delay: int = None, multiplier: int = None):
+                 on_status_codes: list[HttpStatusCode] = None):
         self.__max_retries: int = (max_retries or 0)
         self.__on_status_codes: list[HttpStatusCode] = (on_status_codes or [])
-        self.__initial_delay: int = (initial_delay or 2)
-        self.__multiplier: int = (multiplier or 2)
         self.__api_key = api_key
         self.__fallback_api_key = fallback_api_key
         self.__virtual_key = virtual_key
@@ -25,31 +23,40 @@ class ExpBackoff:
 
             status_code: HttpStatusCode = HttpStatusCode.INTERNAL_SERVER_ERROR
             resp: dict = None
+
+            time_map: list = []
             headers: dict = {
-                "accomplished-key": None
+                "execution-key": "",
+                "processing-time": "",
+                "fallback-processing-time": ""
             }
 
-            delay = self.__initial_delay
-            for attempt in range(self.__max_retries):
+            for itr, attempt in enumerate(range(self.__max_retries)):
+
+                start_time: time = time.time()
                 status_code, resp = func(self.__api_key, *args, **kwargs)
+                time_taken: time = time.time() - start_time
+                time_map.append("{:.2f}".format(time_taken))
 
                 if status_code not in self.__on_status_codes:
-                    headers["accomplished-key"] = self.__virtual_key
+                    headers["execution-key"] = self.__virtual_key
                     break
                 elif attempt < self.__max_retries - 1:
-                    print(
-                        f"Attempt {attempt + 1} failed: {status_code}. "
-                        f"Retrying in {delay} seconds..."
-                    )
-                    time.sleep(delay)
-                    delay *= self.__multiplier
+                    print(f"Attempt {attempt + 1} failed: {status_code}.")
 
-            if self.__fallback_api_key and not headers["accomplished-key"]:
-                status_code, resp = func(self.__fallback_api_key, *args, **kwargs)
+            if self.__fallback_api_key and status_code in self.__on_status_codes:
+                print("Attempting Fallback...")
+                start_time: time = time.time()
+                status_code, resp = func(self.__fallback_api_key, *args,
+                                         **kwargs)
                 if status_code == HttpStatusCode.OK:
-                    headers["accomplished-key"] = self.__fallback_virtual_key
+                    headers["execution-key"] = self.__fallback_virtual_key
+                time_taken: time = time.time() - start_time
+                headers["fallback-processing-time"] = "{:.2f}".format(
+                    time_taken)
+
+            headers["processing-time"] = json.dumps(time_map)
 
             return status_code, resp, headers
 
         return wrapper_func
-
