@@ -27,6 +27,7 @@ class ExpBackoff:
 
             time_map: list = []
             headers: dict = {
+                "cache-hit": "false",
                 "execution-key": "",
                 "processing-time": "",
                 "fallback-processing-time": ""

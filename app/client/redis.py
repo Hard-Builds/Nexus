@@ -6,7 +6,8 @@ from app.enums.os_vars import OSVarsEnum
 
 REDIS_HOST = os.environ[OSVarsEnum.REDIS_HOST.value]
 REDIS_PORT = os.environ[OSVarsEnum.REDIS_PORT.value]
-
+REDIS_PWD = os.environ[OSVarsEnum.REDIS_PWD.value]
+REDIS_USERNAME = os.environ[OSVarsEnum.REDIS_USERNAME.value]
 
 class RedisClient:
     __instance = None
@@ -21,6 +22,7 @@ class RedisClient:
 
     def init_client(self):
         self.client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT,
+                                  username=REDIS_USERNAME, password=REDIS_PWD,
                                   decode_responses=True)
 
     @staticmethod

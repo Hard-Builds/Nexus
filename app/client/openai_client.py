@@ -21,10 +21,9 @@ class OpenAIClient:
             fallback_virtual_key=fallback_virtual_key
         )
 
-    def complete(self, req_dto: OpenAIChatReqDto) -> \
+    def complete(self, req_body: dict) -> \
             (HttpStatusCode, Response):
 
-        req_body = req_dto.dict()
         print(f"req_body : {req_body}")
 
         @self.__exp_backoff_utils
