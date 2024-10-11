@@ -28,8 +28,24 @@ class OpenAIService:
 
         """Weighted Round robin for load balancing of the keys"""
         config_json: dict = profile_dtl.get("config", {})
-        targets: list = config_json.get("targets", [])
+        cache_dtl: dict = config_json.get("cache")
+        req_body: dict = req_dto.dict()
 
+        if cache_dtl:
+            req_hash = self.__hash_dict(req_body)
+            cached_resp = self.__cache_service.get_object(req_hash)
+        else:
+            req_hash = None
+            cached_resp = None
+
+        if cached_resp:
+            return JSONResponse(
+                status_code=HttpStatusCode.OK,
+                headers={"cache-hit": "true"},
+                content=json.loads(cached_resp)
+            )
+
+        targets: list = config_json.get("targets", [])
         virtual_key_dtl: dict = self.__get_virtual_key(targets)
         cred_virtual_key: str = virtual_key_dtl.get("virtual_key")
 
@@ -48,44 +64,27 @@ class OpenAIService:
             fallback_api_key: str = ""
             fallback_virtual_key: str = ""
 
-        cache_dtl: dict = config_json.get("cache")
-        req_body: dict = req_dto.dict()
+        """Invoking openai sdk with exp backoff"""
+        openai_client = OpenAIClient(
+            api_key=api_key,
+            max_retries=retry_dtl.get("attempts"),
+            on_status_codes=retry_dtl.get("onStatusCodes"),
+            fallback_api_key=fallback_api_key,
+            virtual_key=cred_virtual_key,
+            fallback_virtual_key=fallback_virtual_key
+        )
+        status_code, client_response, headers = openai_client.complete(
+            req_body)
+        client_response_dict = client_response.dict()
 
-        if cache_dtl:
-            req_hash = self.__hash_dict(req_body)
-            cached_resp = self.__cache_service.get_object(req_hash)
-        else:
-            req_hash = None
-            cached_resp = None
-
-        if not cached_resp:
-            """Invoking openai sdk with exp backoff"""
-            openai_client = OpenAIClient(
-                api_key=api_key,
-                max_retries=retry_dtl.get("attempts"),
-                on_status_codes=retry_dtl.get("onStatusCodes"),
-                fallback_api_key=fallback_api_key,
-                virtual_key=cred_virtual_key,
-                fallback_virtual_key=fallback_virtual_key
+        if cache_dtl and status_code == HttpStatusCode.OK:
+            max_age: int = cache_dtl.get("max_age")
+            resp_dump = json.dumps(client_response_dict)
+            self.__cache_service.put_object(
+                name=req_hash,
+                val=resp_dump,
+                ttl=max_age
             )
-            status_code, client_response, headers = openai_client.complete(
-                req_body)
-            client_response_dict = client_response.dict()
-
-            if cache_dtl:
-                max_age: int = cache_dtl.get("max_age")
-                resp_dump = json.dumps(client_response_dict)
-                self.__cache_service.put_object(
-                    name=req_hash,
-                    val=resp_dump,
-                    ttl=max_age
-                )
-        else:
-            status_code = HttpStatusCode.OK
-            headers = {
-                "cache-hit": "true"
-            }
-            client_response_dict = json.loads(cached_resp)
 
         # TODO: Appending log file
 
