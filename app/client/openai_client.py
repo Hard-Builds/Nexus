@@ -35,6 +35,6 @@ class OpenAIClient:
                 return HttpStatusCode.OK, response
             except OpenAIError as e:
                 print(f"An error occurred: {e}")
-                return e.status_code, {}
+                return e.status_code, None
 
         return _complete()

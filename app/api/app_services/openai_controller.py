@@ -1,16 +1,16 @@
 from fastapi import Request, APIRouter
 
 from app.dto.open_ai_dto import OpenAIChatReqDto
+from app.enums.sys_enum import ServiceApiTagEnum
 from app.middleware.auth_middleware import UserValidator
-from app.service.open_ai_service import OpenAIService
+from app.service.app_services.open_ai_service import OpenAIService
 from app.utils.app_utils import AppUtils
 
-open_api_service_router = APIRouter(prefix="/open-ai",
-                                    tags=["OpenAI Services"])
+open_ai_service_router = APIRouter(prefix="/open-ai",
+                                   tags=[ServiceApiTagEnum.OPENAI])
 
 
-
-@open_api_service_router.put("/completion")
+@open_ai_service_router.put("/completion")
 @UserValidator.pre_authorizer(support_app_key=True)
 def open_ai_chat_controller(request: Request, req_dto: OpenAIChatReqDto):
     try:
